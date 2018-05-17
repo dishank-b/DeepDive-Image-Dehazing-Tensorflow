@@ -4,6 +4,7 @@ import tensorflow as tf
 import numpy as np
 import cv2
 from ops import *
+from vgg16 import *
 
 class DeepDive(object):
 	"""DeepDive Model"""
@@ -77,9 +78,18 @@ class DeepDive(object):
 			modC = module(modB) 
 			self.output = Conv_2D(modC, output_chan=3, kernel=[3,3], stride=[1,1], padding="SAME", activation=BReLU,use_bn=True, name="Conv1")
 
+			vgg_net1 = vgg16(path to weights)
+			vgg_net1.build(self.x)
+			
+			vgg_net2 = vgg16(path to weights)
+			vgg_net2.build(self.output)
+
 		with tf.name_scope("Loss") as scope:
 			
-			self.loss = tf.reduce_mean(tf.losses.mean_squared_error(self.y, self.output))
+			self.loss = tf.reduce_mean(tf.losses.mean_squared_error(self.y, self.output)) +
+						tf.reduce_mean(tf.losses.mean_squared_error(vgg_net1.pool4, vgg_net2.pool5)) +
+						tf.reduce_mean(tf.losses.mean_squared_error(vgg_net1.pool5, vgg_net2.pool5)) +
+						tf.reduce_mean(tf.losses.mean_squared_error(vgg_net1.relu7, vgg_net2.relu7))
 
 		with tf.name_scope("Optimizers") as scope:
 			self.solver = tf.train.AdamOptimizer(learning_rate=1e-5, beta1=0.1).minimize(self.loss)

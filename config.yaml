@@ -1,0 +1,9 @@
+model_params:  
+  descrip: ""
+  model_name: "UNET"
+  mode: "Train"
+
+training_params:
+  learning_rate: 1e-05
+  epochs: 100
+  batch_size: 32

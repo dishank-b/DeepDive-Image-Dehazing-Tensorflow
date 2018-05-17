@@ -29,13 +29,17 @@ if not os.path.exists(model_path):
     os.makedirs(model_path+"/saved_model")
 
 
-####### Reading Hyperparameters #####$
+####### Reading Hyperparameters #####
 with open("config.yaml") as file:
 	data = yaml.load(file)
 	training_params = data['training_params']
 	learning_rate = float(training_params['learning_rate'])
 	batch_size = int(training_params['batch_size'])
 	epoch_size = int(training_params['epochs'])
+	model_params= data['model_params']
+	descrip = model_params['descrip']
+	if len(descrip)==0:
+		raise ValueError, "Please give a proper description of the model you are training."
 
 os.system('cp config.yaml '+model_path+'/config.yaml')
 
