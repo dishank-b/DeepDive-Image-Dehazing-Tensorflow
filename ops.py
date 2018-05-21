@@ -89,6 +89,9 @@ def Bn(x, is_train=True):
 def L_Relu(x, alpha=0.1):
 	return tf.maximum(x, alpha*x)
 
+def BReLU(x, tmin=0.0, tmax=1.0):
+	return tf.minimum(tmax, tf.maximum(tmin, x))
+
 def max_pool(input, kernel=3, stride=2, name=None):
    """Max-pool
 

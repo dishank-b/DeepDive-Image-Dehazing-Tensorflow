@@ -10,18 +10,17 @@ import yaml
 
 
 ######### Loading Data ###########
-blur_images = np.load("./Flower_Images.npy")
-blur_images = blur_images[:57]
-norm_images = np.load("./Norm_Flower_Images.npy")
-print "Data Loaded"
-blur_images = 1/127.0*(blur_images-127.0)
-norm_images = 1/127.0*(norm_images-127.0)
+# hazed_img = np.load("./Flower_Images.npy")
+# dehazed_img = np.load("./Norm_Flower_Images.npy")
+# print "Data Loaded"
+# hazed_img = 1/255.0*(blur_images-255.0)
+# dehazed_img = 1/255.0*(norm_images-255.0)
 
 
 ######## Making Directory #########
 log_dir = "./logs/"
 model_path = log_dir+sys.argv[1]
-
+print model_path
 if not os.path.exists(model_path):
     os.makedirs(model_path)
     os.makedirs(model_path+"/results")
@@ -43,7 +42,7 @@ with open("config.yaml") as file:
 
 os.system('cp config.yaml '+model_path+'/config.yaml')
 
-Unet = UNET(model_path)
-Unet.build_model()
-Unet.train_model(inputs = [norm_images, blur_images],learning_rate, batch_size, epoch_size)
+DD = DeepDive(model_path)
+DD.build_model()
+# DD.train_model(inputs = [norm_images, blur_images],learning_rate, batch_size, epoch_size)
 
