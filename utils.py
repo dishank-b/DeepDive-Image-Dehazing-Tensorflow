@@ -113,7 +113,7 @@ def test_npy():
 	images = np.load("/media/shareit/haze_dataset/npy_files/Val.npy")
 	i=1
 	j=1
-	print len(images)
+	print images.shape
 	for image in images:
 		cv2.imshow("Window1", image[0])
 		cv2.imshow("Window2", image[1])

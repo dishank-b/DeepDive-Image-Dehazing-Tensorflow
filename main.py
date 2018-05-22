@@ -9,14 +9,6 @@ from models import *
 import yaml
 
 
-######### Loading Data ###########
-# hazed_img = np.load("./Flower_Images.npy")
-# dehazed_img = np.load("./Norm_Flower_Images.npy")
-# print "Data Loaded"
-# hazed_img = 1/255.0*(blur_images-255.0)
-# dehazed_img = 1/255.0*(norm_images-255.0)
-
-
 ######## Making Directory #########
 log_dir = "./logs/"
 model_path = log_dir+sys.argv[1]
@@ -35,14 +27,25 @@ with open("config.yaml") as file:
 	learning_rate = float(training_params['learning_rate'])
 	batch_size = int(training_params['batch_size'])
 	epoch_size = int(training_params['epochs'])
+	data_path = training_params['data_path']
 	model_params= data['model_params']
 	descrip = model_params['descrip']
 	if len(descrip)==0:
 		raise ValueError, "Please give a proper description of the model you are training."
 
+######### Loading Data ###########
+Train_img = np.load(data_path+"Train.npy") # First image of each pair is clear image and
+Val_img = np.load(data_path+"Val.npy")	   # second image is hazed images. 2nd image is input to the model
+print "Data Loaded"
+Train_img = 1/255.0*(Train_img-255.0)
+Val_img = 1/255.0*(Val_img-255.0)
+
 os.system('cp config.yaml '+model_path+'/config.yaml')
 
 DD = DeepDive(model_path)
 DD.build_model()
-# DD.train_model(inputs = [norm_images, blur_images],learning_rate, batch_size, epoch_size)
+print "Model Build......"
+print "Training is about to start with"
+print "Learning_rate: ", learning_rate, "Batch_size", batch_size, "Epochs", epoch_size
+DD.train_model(Train_img, Val_img,learning_rate, batch_size, epoch_size)
 

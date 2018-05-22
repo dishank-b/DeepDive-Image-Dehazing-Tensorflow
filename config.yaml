@@ -1,9 +1,10 @@
 model_params:  
-  descrip: ""
-  model_name: "UNET"
+  descrip: "First Test"
+  model_name: "DeepDive"
   mode: "Train"
 
 training_params:
   learning_rate: 1e-05
   epochs: 100
   batch_size: 32
+  data_path: /media/shareit/haze_dataset/npy_files/
