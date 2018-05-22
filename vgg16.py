@@ -18,7 +18,6 @@ class Vgg16(object):
             print(path)
 
         self.data_dict = np.load(vgg16_npy_path, encoding='latin1').item()
-        print("npy file loaded")
 
     def build(self, rgb):
         """
@@ -28,7 +27,6 @@ class Vgg16(object):
         """
 
         start_time = time.time()
-        print("build model started")
         rgb_scaled = rgb * 255.0
 
         # Convert RGB to BGR
@@ -73,7 +71,6 @@ class Vgg16(object):
         self.fc7 = self.fc_layer(self.relu6, "fc7")
         self.relu7 = tf.nn.relu(self.fc7)
 
-        self.fc8 = self.fc_layer(self.relu7, "fc8")
 
 
     def avg_pool(self, bottom, name):

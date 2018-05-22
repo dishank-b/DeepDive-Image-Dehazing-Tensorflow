@@ -98,7 +98,9 @@ class DeepDive(object):
 		with tf.name_scope("Optimizers") as scope:
 			self.solver = tf.train.AdamOptimizer(learning_rate=1e-5, beta1=0.1).minimize(self.loss)
 
-		self.sess = tf.Session()
+		config = tf.ConfigProto()
+		config.gpu_options.allow_growth = True
+		self.sess = tf.Session(config=config)
 		self.writer = tf.summary.FileWriter(self.graph_path)
 		self.writer.add_graph(self.sess.graph)
 		self.saver = tf.train.Saver()
@@ -116,18 +118,23 @@ class DeepDive(object):
 					sess_out = self.sess.run(sess_in, {self.x:in_images,self.y:out_images,self.train_phase:True})
 
 					if itr%5==0:
-						print "Epoch: ", epoch, "Iteration: ", itr
-						print "Loss: ", sess_out[1]
+						print "Epoch: ", epoch, "Iteration: ", itr, print "Loss: ", sess_out[1]
 
-				if epoch%10==0:
-					self.saver.save(self.sess, self.save_path)
-					print "Checkpoint saved"
+				tot_val_loss=0
 
-					val_loss = self.sess.run([self.loss, self.output], {self.x: val_imgs[:,1,:,:,:], self.y:val_imgs[:,0,:,:,:],
-							   self.train_phase:False})
+				for itr in xrange(0, val_imgs.shape[0]-batch_size, batch_size):
+					in_images = val_imgs[itr:itr+batch_size][1]
+					out_images = val_imgs[itr:itr+batch_size][0]
 
-					print "Epoch: ", epoch, "Iteration: ", itr
-					print "Loss: ", val_loss
+					val_loss = self.sess.run([self.loss], {self.x: in_images, self.y: out_images,self.train_phase:False})
+					tot_val_loss = tot_val_loss + val_loss
+
+				print "Epoch: ", epoch, "Validation Loss: ", float(tot_val_loss)/float(val_imgs.shape[0])
+
+				if epoch%5==0:
+					if epoch%10=0:
+						self.saver.save(self.sess, self.save_path)
+						print "Checkpoint saved"
 
 					random_img = train_imgs[np.random.randint(1, train_imgs.shape[0], 4)]
 					gen_imgs = self.sess.run([self.output], {self.x: random_img[1],self.train_phase:False})
@@ -144,7 +151,7 @@ class DeepDive(object):
 						else:
 							image_grid_vertical = np.vstack((image_grid_vertical, image_grid_horizontal))
 
-					cv2.imwrite(self.output_path +"/train_img_"+str(epoch)+".jpg", image_grid_vertical)
+					cv2.imwrite(self.output_path +str(epoch)+"/train_img_"+".jpg", image_grid_vertical)
 
 					random_img = val_imgs[np.random.randint(1, val_imgs.shape[0], 4)]
 					gen_imgs = self.sess.run([self.output], {self.x: random_img[1],self.train_phase:False})
@@ -161,4 +168,4 @@ class DeepDive(object):
 						else:
 							image_grid_vertical = np.vstack((image_grid_vertical, image_grid_horizontal))
 
-					cv2.imwrite(self.output_path +"/val_img_"+str(epoch)+".jpg", image_grid_vertical)
+					cv2.imwrite(self.output_path +str(epoch)+"/val_img_"+".jpg", image_grid_vertical)

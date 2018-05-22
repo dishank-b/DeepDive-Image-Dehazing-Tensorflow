@@ -9,17 +9,6 @@ from models import *
 import yaml
 
 
-######## Making Directory #########
-log_dir = "./logs/"
-model_path = log_dir+sys.argv[1]
-print model_path
-if not os.path.exists(model_path):
-    os.makedirs(model_path)
-    os.makedirs(model_path+"/results")
-    os.makedirs(model_path+"/tf_graph")
-    os.makedirs(model_path+"/saved_model")
-
-
 ####### Reading Hyperparameters #####
 with open("config.yaml") as file:
 	data = yaml.load(file)
@@ -30,8 +19,19 @@ with open("config.yaml") as file:
 	data_path = training_params['data_path']
 	model_params= data['model_params']
 	descrip = model_params['descrip']
+	log_dir = model_params['log_dir']
 	if len(descrip)==0:
 		raise ValueError, "Please give a proper description of the model you are training."
+
+######## Making Directory #########
+model_path = log_dir+sys.argv[1]
+print model_path
+if not os.path.exists(model_path):
+    os.makedirs(model_path)
+    os.makedirs(model_path+"/results")
+    os.makedirs(model_path+"/tf_graph")
+    os.makedirs(model_path+"/saved_model")
+
 
 ######### Loading Data ###########
 Train_img = np.load(data_path+"Train.npy") # First image of each pair is clear image and
