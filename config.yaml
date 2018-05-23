@@ -1,11 +1,11 @@
 model_params:  
-  descrip: "First Test"
+  descrip: "Everything Good, Feature Loss implemented"
   model_name: "DeepDive"
   mode: "Train"
   log_dir: /media/mnt/dehaze/logs/
 
 training_params:
   learning_rate: 1e-05
-  epochs: 100
-  batch_size: 16
+  epochs: 5000
+  batch_size: 32
   data_path: /media/mnt/dehaze/npy_files/

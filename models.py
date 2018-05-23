@@ -12,6 +12,10 @@ class DeepDive(object):
 		self.graph_path = model_path+"/tf_graph/"
 		self.save_path = model_path + "/saved_model/"
 		self.output_path = model_path + "/results/"
+		if not os.path.exists(model_path):
+			os.makedirs(self.graph_path+"train/")
+			os.makedirs(self.graph_path+"val/")
+		
 
 	def moduleA(self, x):
 		with tf.name_scope("Module_A") as scope:
@@ -81,21 +85,19 @@ class DeepDive(object):
 			modB = self.moduleB(modA)
 			modC = self.moduleC(modB) 
 			self.output = Conv_2D(modC, output_chan=3, kernel=[3,3], stride=[1,1], padding="SAME", activation=BReLU,use_bn=True, name="output")
-			# print "outshape", self.output.get_shape()
-			# vgg_net1 = Vgg16("./vgg16.npy")
-			# vgg_net1.build(self.y)
+		
+			vgg_net1 = Vgg16("./vgg16.npy")
+			vgg_net1.build(self.y)
 			
-			# vgg_net2 = Vgg16("./vgg16.npy")x
-			# vgg_net2.build(self.output)
+			vgg_net2 = Vgg16("./vgg16.npy")
+			vgg_net2.build(self.output)
 
 		with tf.name_scope("Loss") as scope:
 			
-			self.loss = tf.reduce_mean(tf.losses.mean_squared_error(self.y, self.output)) #\
-						# + tf.reduce_mean(tf.losses.mean_squared_error(vgg_net1.pool4, vgg_net2.pool4)) \
-						# + tf.reduce_mean(tf.losses.mean_squared_error(vgg_net1.pool5, vgg_net2.pool5)) \
-						# + tf.reduce_mean(tf.losses.mean_squared_error(vgg_net1.relu7, vgg_net2.relu7))
+			self.loss = tf.losses.mean_squared_error(255.0*self.y, 255.0*self.output) \
+					  	+ tf.losses.mean_squared_error(vgg_net1.conv3_3, vgg_net2.conv3_3)
 
-			self.loss_summ = tf.summary.scalar("Loss", self.loss)
+			self.train_loss_summ = tf.summary.scalar("Loss", self.loss)
 
 		with tf.name_scope("Optimizers") as scope:
 			self.solver = tf.train.AdamOptimizer(learning_rate=1e-5, beta1=0.1).minimize(self.loss)
@@ -104,9 +106,9 @@ class DeepDive(object):
 		config = tf.ConfigProto()
 		config.gpu_options.allow_growth = True
 		self.sess = tf.Session(config=config)
-		self.train_writer = tf.summary.FileWriter(self.graph_path)
+		self.train_writer = tf.summary.FileWriter(self.graph_path+"train/")
 		self.train_writer.add_graph(self.sess.graph)
-		self.val_writer = tf.summary.FileWriter(self.graph_path)
+		self.val_writer = tf.summary.FileWriter(self.graph_path+"val/")
 		self.val_writer.add_graph(self.sess.graph)
 		self.saver = tf.train.Saver()
 		self.sess.run(tf.global_variables_initializer())
@@ -119,14 +121,12 @@ class DeepDive(object):
 					in_images = train_imgs[itr:itr+batch_size][1]
 					out_images = train_imgs[itr:itr+batch_size][0]
 
-					sess_in = [self.solver ,self.loss, self.merged_summ ]
+					sess_in = [self.solver ,self.loss, self.merged_summ]
 					sess_out = self.sess.run(sess_in, {self.x:in_images,self.y:out_images,self.train_phase:True})
 					self.train_writer.add_summary(sess_out[2])
 
 					if itr%5==0:
 						print "Epoch: ", epoch, "Iteration: ", itr, "Loss: ", sess_out[1]
-
-				tot_val_loss=0
 
 				for itr in xrange(0, val_imgs.shape[0]-batch_size, batch_size):
 					in_images = val_imgs[itr:itr+batch_size][1]
@@ -135,9 +135,7 @@ class DeepDive(object):
 					val_loss, summ = self.sess.run([self.loss, self.merged_summ], {self.x: in_images, self.y: out_images,self.train_phase:False})
 					self.val_writer.add_summary(summ)
 
-					tot_val_loss = tot_val_loss + val_loss
-
-				print "Epoch: ", epoch, "Validation Loss: ", float(tot_val_loss)/float(val_imgs.shape[0])
+					print "Epoch: ", epoch, "Iteration: ", itr, "Validation Loss: ", val_loss
 
 				if epoch%20==0:
 					self.saver.save(self.sess, self.save_path)
