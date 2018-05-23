@@ -25,7 +25,7 @@ with open("config.yaml") as file:
 
 ######## Making Directory #########
 model_path = log_dir+sys.argv[1]
-print model_path
+print "Model Path: ", model_path
 if not os.path.exists(model_path):
     os.makedirs(model_path)
     os.makedirs(model_path+"/results")
@@ -37,8 +37,8 @@ if not os.path.exists(model_path):
 Train_img = np.load(data_path+"Train.npy") # First image of each pair is clear image and
 Val_img = np.load(data_path+"Val.npy")	   # second image is hazed images. 2nd image is input to the model
 print "Data Loaded"
-Train_img = 1/255.0*(Train_img-255.0)
-Val_img = 1/255.0*(Val_img-255.0)
+Train_img = 1/255.0*Train_img # Value scaled to [0,1]
+Val_img = 1/255.0*Val_img
 
 os.system('cp config.yaml '+model_path+'/config.yaml')
 
