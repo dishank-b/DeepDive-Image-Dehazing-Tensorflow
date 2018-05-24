@@ -25,34 +25,34 @@ class Vgg16(object):
 
         :param rgb: rgb image [batch, height, width, 3] values scaled [0, 1]
         """
+        with tf.name_scope("VGG") as scope:
+            start_time = time.time()
+            rgb_scaled = rgb * 255.0
 
-        start_time = time.time()
-        rgb_scaled = rgb * 255.0
+            # Convert RGB to BGR
+            red, green, blue = tf.split(axis=3, num_or_size_splits=3, value=rgb_scaled)
+            assert red.get_shape().as_list()[1:] == [224, 224, 1]
+            assert green.get_shape().as_list()[1:] == [224, 224, 1]
+            assert blue.get_shape().as_list()[1:] == [224, 224, 1]
+            bgr = tf.concat(axis=3, values=[
+                blue - VGG_MEAN[0],
+                green - VGG_MEAN[1],
+                red - VGG_MEAN[2],
+            ])
+            assert bgr.get_shape().as_list()[1:] == [224, 224, 3]
 
-        # Convert RGB to BGR
-        red, green, blue = tf.split(axis=3, num_or_size_splits=3, value=rgb_scaled)
-        assert red.get_shape().as_list()[1:] == [224, 224, 1]
-        assert green.get_shape().as_list()[1:] == [224, 224, 1]
-        assert blue.get_shape().as_list()[1:] == [224, 224, 1]
-        bgr = tf.concat(axis=3, values=[
-            blue - VGG_MEAN[0],
-            green - VGG_MEAN[1],
-            red - VGG_MEAN[2],
-        ])
-        assert bgr.get_shape().as_list()[1:] == [224, 224, 3]
+            self.conv1_1 = self.conv_layer(bgr, "conv1_1")
+            self.conv1_2 = self.conv_layer(self.conv1_1, "conv1_2")
+            self.pool1 = self.max_pool(self.conv1_2, 'pool1')
 
-        self.conv1_1 = self.conv_layer(bgr, "conv1_1")
-        self.conv1_2 = self.conv_layer(self.conv1_1, "conv1_2")
-        self.pool1 = self.max_pool(self.conv1_2, 'pool1')
+            self.conv2_1 = self.conv_layer(self.pool1, "conv2_1")
+            self.conv2_2 = self.conv_layer(self.conv2_1, "conv2_2")
+            self.pool2 = self.max_pool(self.conv2_2, 'pool2')
 
-        self.conv2_1 = self.conv_layer(self.pool1, "conv2_1")
-        self.conv2_2 = self.conv_layer(self.conv2_1, "conv2_2")
-        self.pool2 = self.max_pool(self.conv2_2, 'pool2')
-
-        self.conv3_1 = self.conv_layer(self.pool2, "conv3_1")
-        self.conv3_2 = self.conv_layer(self.conv3_1, "conv3_2")
-        self.conv3_3 = self.conv_layer(self.conv3_2, "conv3_3")
-        self.pool3 = self.max_pool(self.conv3_3, 'pool3')
+            self.conv3_1 = self.conv_layer(self.pool2, "conv3_1")
+            self.conv3_2 = self.conv_layer(self.conv3_1, "conv3_2")
+            self.conv3_3 = self.conv_layer(self.conv3_2, "conv3_3")
+            self.pool3 = self.max_pool(self.conv3_3, 'pool3')
 
 
 
