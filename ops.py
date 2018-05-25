@@ -83,14 +83,20 @@ def Dense(x, output_dim, use_bn=True, activation=tf.nn.relu, train_phase=True,ad
 			return out
 
 def Bn(x, is_train=True):
-	return tf.contrib.layers.batch_norm(x, updates_collections = None,is_training=is_train, 
-			center= True, scale=True, reuse=False)
+	"""
+	If you are not using update_collection=None here, then make sure to add
+	control dependency of tf.GraphKeys.UPDATE_OPS before running optimizer op.
+	"""
+	return tf.contrib.layers.batch_norm(x, decay= 0.99, is_training=is_train, center= True, scale=True, reuse=False)
 
 def L_Relu(x, alpha=0.1):
 	return tf.maximum(x, alpha*x)
 
 def BReLU(x, tmin=0.0, tmax=1.0):
 	return tf.minimum(tmax, tf.maximum(tmin, x))
+
+def L_BReLU(x, tmin=0.0, tmax=1.0, alpha=0.1):
+	return tf.maximum(alpha*x, tf.minimum(x, tmax+alpha*(x-1)))
 
 def max_pool(input, kernel=3, stride=2, name=None):
    """Max-pool
