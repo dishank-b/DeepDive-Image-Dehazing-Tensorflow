@@ -91,7 +91,7 @@ class DeepDive(object):
 				return ele_sum
 
 
-	def build_model(self, batch_size=4):
+	def build_model(self):
 		with tf.name_scope("Inputs") as scope:
 			self.x = tf.placeholder(tf.float32, shape=[None,224,224,3], name="Input")
 			self.y = tf.placeholder(tf.float32, shape=[None,224,224,3], name="Output")
@@ -106,23 +106,23 @@ class DeepDive(object):
 			self.output = Conv_2D(modC, output_chan=3, kernel=[3,3], stride=[1,1], padding="SAME", activation=L_BReLU,use_bn=True, 
 								train_phase=self.train_phase, name="output")
 			
-			# vgg_net1 = Vgg16("./vgg16.npy")
-			# vgg_net1.build(self.y)
+			vgg_net1 = Vgg16("./vgg16.npy")
+			vgg_net1.build(self.y)
 			
-			# vgg_net2 = Vgg16("./vgg16.npy")
-			# vgg_net2.build(self.output)
+			vgg_net2 = Vgg16("./vgg16.npy")
+			vgg_net2.build(self.output)
 
 		with tf.name_scope("Loss") as scope:
 			
-			self.loss = tf.losses.mean_squared_error(self.y, self.output) #\
-					  	# + tf.losses.mean_squared_error(vgg_net1.conv3_3/255.0, vgg_net2.conv3_3/255.0)
+			self.loss = tf.losses.mean_squared_error(self.y, self.output) \
+					  	+ tf.losses.mean_squared_error(vgg_net1.conv3_3/255.0, vgg_net2.conv3_3/255.0)
 
 			self.train_loss_summ = tf.summary.scalar("Loss", self.loss)
 
 		with tf.name_scope("Optimizers") as scope:
 			update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
   			with tf.control_dependencies(update_ops):
-				self.solver = tf.train.AdamOptimizer(learning_rate=1e-5).minimize(self.loss)
+				self.solver = tf.train.AdamOptimizer(learning_rate=1e-04).minimize(self.loss)
 
 		self.merged_summ = tf.summary.merge_all()
 		config = tf.ConfigProto()
@@ -140,6 +140,8 @@ class DeepDive(object):
 
 		print "Training Images: ", train_imgs.shape[0]
 		print "Validation Images: ", val_imgs.shape[0]
+		print "Training is about to start with"
+		print "Learning_rate: ", learning_rate, "Batch_size", batch_size, "Epochs", epoch_size
 		with tf.name_scope("Training") as scope:
 			for epoch in range(epoch_size):
 				for itr in xrange(0, train_imgs.shape[0]-batch_size, batch_size):

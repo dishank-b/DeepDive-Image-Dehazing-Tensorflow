@@ -45,7 +45,5 @@ os.system('cp config.yaml '+model_path+'/config.yaml')
 DD = DeepDive(model_path)
 DD.build_model()
 print "Model Build......"
-print "Training is about to start with"
-print "Learning_rate: ", learning_rate, "Batch_size", batch_size, "Epochs", epoch_size
 DD.train_model(Train_img, Val_img,learning_rate, batch_size, epoch_size)
 
