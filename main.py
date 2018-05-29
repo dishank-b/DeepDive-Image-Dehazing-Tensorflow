@@ -45,5 +45,5 @@ os.system('cp config.yaml '+model_path+'/config.yaml')
 DD = DeepDive(model_path)
 DD.build_model()
 print "Model Build......"
-DD.train_model(Train_img[:50], Val_img[:20],learning_rate, batch_size, epoch_size)
+DD.train_model(Train_img, Val_img,learning_rate, batch_size, epoch_size)
 

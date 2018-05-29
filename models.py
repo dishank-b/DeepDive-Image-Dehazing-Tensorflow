@@ -149,8 +149,8 @@ class DeepDive(object):
 		self.debug_info()
 		print "Training Images: ", train_imgs.shape[0]
 		print "Validation Images: ", val_imgs.shape[0]
-		print "Training is about to start with"
 		print "Learning_rate: ", learning_rate, "Batch_size", batch_size, "Epochs", epoch_size
+		input("Training will start above configuration. Press Enter to Start....")
 		with tf.name_scope("Training") as scope:
 			for epoch in range(epoch_size):
 				for itr in xrange(0, train_imgs.shape[0]-batch_size, batch_size):
