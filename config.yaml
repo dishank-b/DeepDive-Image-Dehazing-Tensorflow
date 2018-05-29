@@ -1,11 +1,11 @@
 model_params:  
-  descrip: "Everything Good, Feature Loss implemented"
+  descrip: "Trying the learn the identity function."
   model_name: "DeepDive"
   mode: "Train"
   log_dir: /media/mnt/dehaze/logs/
 
 training_params:
-  learning_rate: 1e-05
+  learning_rate: 1e-04
   epochs: 5000
-  batch_size: 32
+  batch_size: 16
   data_path: /media/mnt/dehaze/npy_files/
