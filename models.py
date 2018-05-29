@@ -21,75 +21,80 @@ class DeepDive(object):
 	def moduleA(self, x):
 		with tf.name_scope("Module_A") as scope:
 			with tf.variable_scope("Module_A") as var_scope:
-				conv1_1 = Conv_2D(x, output_chan=6, kernel=[1,1], stride=[1,1], padding="SAME", use_bn=True, train_phase=self.train_phase, 
-								name="Conv1_1")
-				conv1_2 = Conv_2D(x, output_chan=6, kernel=[1,1], stride=[1,1], padding="SAME", use_bn=True, train_phase=self.train_phase, 
-								name="Conv1_2")
-				conv1_3 = Conv_2D(x, output_chan=8, kernel=[1,1], stride=[1,1], padding="SAME", use_bn=True, train_phase=self.train_phase, 
-								name="Conv1_3")
+				conv1_1 = Conv_2D(x, output_chan=6, kernel=[1,1], stride=[1,1], padding="SAME", use_bn=True, activation=None,train_phase=self.train_phase, 
+								add_summary=True, name="Conv1_1")
+				conv1_2 = Conv_2D(x, output_chan=6, kernel=[1,1], stride=[1,1], padding="SAME", use_bn=True, activation=None,train_phase=self.train_phase, 
+								add_summary=True, name="Conv1_2")
+				conv1_3 = Conv_2D(x, output_chan=8, kernel=[1,1], stride=[1,1], padding="SAME", use_bn=True, activation=None,train_phase=self.train_phase, 
+								add_summary=True, name="Conv1_3")
 
-				conv2_1 = Conv_2D(conv1_1, output_chan=6, kernel=[3,3], stride=[1,1], padding="SAME", use_bn=True, 
-						train_phase=self.train_phase, name="Conv2_1")
-				conv2_2 = Conv_2D(conv1_3, output_chan=12, kernel=[3,3], stride=[1,1], padding="SAME", use_bn=True, 
-						train_phase=self.train_phase, name="Conv2_2")
+				conv2_1 = Conv_2D(conv1_1, output_chan=6, kernel=[3,3], stride=[1,1], padding="SAME", use_bn=True, activation=None,
+						add_summary=True, train_phase=self.train_phase, name="Conv2_1")
+				conv2_2 = Conv_2D(conv1_3, output_chan=12, kernel=[3,3], stride=[1,1], padding="SAME", use_bn=True, activation=None,
+						add_summary=True, train_phase=self.train_phase, name="Conv2_2")
 
-				conv3_1 = Conv_2D(conv2_2, output_chan=16, kernel=[3,3], stride=[1,1], padding="SAME", use_bn=True, 
-						train_phase=self.train_phase, name="Conv3_1")
+				conv3_1 = Conv_2D(conv2_2, output_chan=16, kernel=[3,3], stride=[1,1], padding="SAME", use_bn=True, activation=None,
+						add_summary=True, train_phase=self.train_phase, name="Conv3_1")
 
 				concat = tf.concat([conv1_2, conv2_1, conv3_1], axis=3, name="concat")		
 				
-				conv4_1 = Conv_2D(concat, output_chan=16, kernel=[1,1], stride=[1,1], padding="SAME", use_bn=True, 
-						train_phase=self.train_phase, name="Conv4_1")
+				conv4_1 = Conv_2D(concat, output_chan=16, kernel=[1,1], stride=[1,1], padding="SAME", use_bn=True, activation=None,
+						add_summary=True, train_phase=self.train_phase, name="Conv4_1")
 
 				ele_sum = tf.add(x, conv4_1, name="Residual_Sum")
 
-				return ele_sum
+				outA = tf.nn.relu(ele_sum)
+
+				return outA
 
 
 	def moduleB(self, x):
 		with tf.name_scope("Module_B") as scope:
 			with tf.variable_scope("Module_B") as var_scope:
-				conv1_1 = Conv_2D(x, output_chan=24, kernel=[1,1], stride=[1,1], padding="SAME", use_bn=True, train_phase=self.train_phase,
-					name="Conv1_1")
-				conv1_2 = Conv_2D(x, output_chan=24, kernel=[1,1], stride=[1,1], padding="SAME", use_bn=True, train_phase=self.train_phase,
-					name="Conv1_2")
+				conv1_1 = Conv_2D(x, output_chan=24, kernel=[1,1], stride=[1,1], padding="SAME", use_bn=True, activation=None,train_phase=self.train_phase,
+						add_summary=True, name="Conv1_1")
+				conv1_2 = Conv_2D(x, output_chan=24, kernel=[1,1], stride=[1,1], padding="SAME", use_bn=True, activation=None,train_phase=self.train_phase,
+						add_summary=True, name="Conv1_2")
 
-				conv2_1 = Conv_2D(conv1_2, output_chan=28, kernel=[1,3], stride=[1,1], padding="SAME", use_bn=True, 
-						train_phase=self.train_phase, name="Conv2_1")
-				conv3_1 = Conv_2D(conv2_1, output_chan=32, kernel=[3,1], stride=[1,1], padding="SAME", use_bn=True, 
-						train_phase=self.train_phase, name="Conv3_1")
+				conv2_1 = Conv_2D(conv1_2, output_chan=28, kernel=[1,3], stride=[1,1], padding="SAME", use_bn=True, activation=None,
+						add_summary=True, train_phase=self.train_phase, name="Conv2_1")
+				conv3_1 = Conv_2D(conv2_1, output_chan=32, kernel=[3,1], stride=[1,1], padding="SAME", use_bn=True, activation=None,
+						add_summary=True, train_phase=self.train_phase, name="Conv3_1")
 
 				concat = tf.concat([conv1_1, conv3_1], axis=3, name="concat")		
 				
-				conv4_1 = Conv_2D(concat, output_chan=16, kernel=[1,1], stride=[1,1], padding="SAME", use_bn=True, 
-						train_phase=self.train_phase, name="Conv4_1")
+				conv4_1 = Conv_2D(concat, output_chan=16, kernel=[1,1], stride=[1,1], padding="SAME", use_bn=True, activation=None,
+						add_summary=True, train_phase=self.train_phase, name="Conv4_1")
 
 				ele_sum = tf.add(x, conv4_1, name="Residual_Sum")
 
-				return ele_sum
+				outB = tf.nn.relu(ele_sum)
+
+				return outB
 
 	def moduleC(self, x):
 		with tf.name_scope("Module_C") as scope:
 			with tf.variable_scope("Module_C") as var_scope:
-				conv1_1 = Conv_2D(x, output_chan=24, kernel=[1,1], stride=[1,1], padding="SAME", use_bn=True, train_phase=self.train_phase,
-					name="Conv1_1")
-				conv1_2 = Conv_2D(x, output_chan=24, kernel=[1,1], stride=[1,1], padding="SAME", use_bn=True, train_phase=self.train_phase,
-					name="Conv1_2")
+				conv1_1 = Conv_2D(x, output_chan=24, kernel=[1,1], stride=[1,1], padding="SAME", use_bn=True, activation=None,train_phase=self.train_phase,
+					add_summary=True, name="Conv1_1")
+				conv1_2 = Conv_2D(x, output_chan=24, kernel=[1,1], stride=[1,1], padding="SAME", use_bn=True, activation=None,train_phase=self.train_phase,
+					add_summary=True, name="Conv1_2")
 
-				conv2_1 = Conv_2D(conv1_2, output_chan=28, kernel=[1,7], stride=[1,1], padding="SAME", use_bn=True, 
-						train_phase=self.train_phase, name="Conv2_1")
-				conv3_1 = Conv_2D(conv2_1, output_chan=32, kernel=[7,1], stride=[1,1], padding="SAME", use_bn=True, 
-						train_phase=self.train_phase, name="Conv3_1")
+				conv2_1 = Conv_2D(conv1_2, output_chan=28, kernel=[1,7], stride=[1,1], padding="SAME", use_bn=True, activation=None,
+						add_summary=True, train_phase=self.train_phase, name="Conv2_1")
+				conv3_1 = Conv_2D(conv2_1, output_chan=32, kernel=[7,1], stride=[1,1], padding="SAME", use_bn=True, activation=None,
+						add_summary=True, train_phase=self.train_phase, name="Conv3_1")
 
 				concat = tf.concat([conv1_1, conv3_1], axis=3, name="concat")		
 				
-				conv4_1 = Conv_2D(concat, output_chan=16, kernel=[1,1], stride=[1,1], padding="SAME", use_bn=True, 
-						train_phase=self.train_phase, name="Conv4_1")
+				conv4_1 = Conv_2D(concat, output_chan=16, kernel=[1,1], stride=[1,1], padding="SAME", use_bn=True, activation=None,
+						add_summary=True, train_phase=self.train_phase, name="Conv4_1")
 
 				ele_sum = tf.add(x, conv4_1, name="Residual_Sum")
 
-				return ele_sum
+				outC = tf.nn.relu(ele_sum)
 
+				return outC
 
 	def build_model(self):
 		with tf.name_scope("Inputs") as scope:
@@ -99,12 +104,12 @@ class DeepDive(object):
 
 		with tf.name_scope("Model") as scope:
 			conv1  = Conv_2D(self.x, output_chan=16, kernel=[3,3], stride=[1,1], padding="SAME", use_bn=True,
-							train_phase=self.train_phase, name="Conv1")
+							add_summary=True, train_phase=self.train_phase, name="Conv1")
 			modA = self.moduleA(conv1)
 			modB = self.moduleB(modA)
 			modC = self.moduleC(modB) 
 			self.output = Conv_2D(modC, output_chan=3, kernel=[3,3], stride=[1,1], padding="SAME", activation=L_BReLU,use_bn=True, 
-								train_phase=self.train_phase, name="output")
+								add_summary=True, train_phase=self.train_phase, name="output")
 			
 			vgg_net1 = Vgg16("./vgg16.npy")
 			vgg_net1.build(self.y)
@@ -114,8 +119,8 @@ class DeepDive(object):
 
 		with tf.name_scope("Loss") as scope:
 			
-			self.loss = tf.losses.mean_squared_error(self.y, self.output) \
-					  	+ tf.losses.mean_squared_error(vgg_net1.conv3_3/255.0, vgg_net2.conv3_3/255.0)
+			self.loss = tf.losses.mean_squared_error(self.y, self.output) #\
+					  	# + tf.losses.mean_squared_error(vgg_net1.conv3_3/255.0, vgg_net2.conv3_3/255.0)
 
 			self.train_loss_summ = tf.summary.scalar("Loss", self.loss)
 
@@ -133,11 +138,11 @@ class DeepDive(object):
 		self.val_writer = tf.summary.FileWriter(self.graph_path+"val/")
 		self.val_writer.add_graph(self.sess.graph)
 		self.saver = tf.train.Saver()
-		tf.train.write_graph(self.sess.graph_def, self.model_path, 'modelGraphDef.pbtxt')
+		# tf.train.write_graph(self.sess.graph_def, self.model_path, 'modelGraphDef.pbtxt')
 		self.sess.run(tf.global_variables_initializer())
 
 	def train_model(self, train_imgs, val_imgs, learning_rate=1e-5, batch_size=32, epoch_size=50):
-
+		self.debug_info()
 		print "Training Images: ", train_imgs.shape[0]
 		print "Validation Images: ", val_imgs.shape[0]
 		print "Training is about to start with"
@@ -188,3 +193,12 @@ class DeepDive(object):
 
 					cv2.imwrite(self.output_path +str(epoch)+"_train_img.jpg", image_grid_vertical)
 
+	def debug_info(self):
+		variables_names = [[v.name, v.get_shape().as_list()] for v in tf.trainable_variables()]
+		print "Trainable Variables:"
+		tot_params = 0
+		for i in variables_names:
+			var_params = np.prod(np.array(i[1]))
+			tot_params += var_params
+			print i[0], i[1], var_params
+		print "Total number of Trainable Parameters: ", str(tot_params/1000.0)+"K"

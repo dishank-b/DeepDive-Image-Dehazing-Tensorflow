@@ -15,20 +15,17 @@ def Conv_2D(x, output_chan, kernel=[5,5], stride=[2,2],padding="SAME" ,activatio
 		
 		if use_bn==True:
 			Conv2D = Bn(Conv2D, is_train=train_phase)
-			assert activation!=None
-			out = activation(Conv2D)
 
+		if activation!=None:
+			out = activation(Conv2D)
 		else:
-			if activation!=None:
-				out = activation(Conv2D)
-			else:
-				out = Conv2D
+			out = Conv2D
+	
 		if add_summary==True:
-			weight_summ= tf.summary.histogram(name+"_W", W)
+			weight_summ= tf.summary.histogram(name+"_W", W)  # Make sure you use summary.merge_all() if here you are adding the summaries
 			bias_summ= tf.summary.histogram(name+"_b", b)
-			return out, [weight_summ, bias_summ]
-		else:
-			return out
+		
+		return out
 
 def Dconv_2D(x, output_chan,batch_size ,kernel=[5,5], stride=[2,2], padding="SAME",activation=tf.nn.relu, use_bn=True, train_phase=True,add_summary=False, name="D_conv2D"):
 	input_shape = x.get_shape().as_list()
