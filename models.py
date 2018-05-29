@@ -115,23 +115,23 @@ class DeepDive(object):
 			self.output = Conv_2D(modC, output_chan=3, kernel=[3,3], stride=[1,1], padding="SAME", activation=L_BReLU,use_bn=True, 
 								add_summary=True, train_phase=self.train_phase, name="output")
 			
-			# vgg_net1 = Vgg16("./vgg16.npy")
-			# vgg_net1.build(self.y)
+			vgg_net1 = Vgg16("./vgg16.npy")
+			vgg_net1.build(self.y)
 			
-			# vgg_net2 = Vgg16("./vgg16.npy")
-			# vgg_net2.build(self.output)
+			vgg_net2 = Vgg16("./vgg16.npy")
+			vgg_net2.build(self.output)
 
 		with tf.name_scope("Loss") as scope:
 			
-			self.loss = tf.losses.mean_squared_error(self.y, self.output) #\
-					  	# + tf.losses.mean_squared_error(vgg_net1.conv3_3/255.0, vgg_net2.conv3_3/255.0)
+			self.loss = tf.losses.mean_squared_error(self.y-self.x, self.output) \
+					  	+ tf.losses.mean_squared_error(vgg_net1.conv3_3/255.0, vgg_net2.conv3_3/255.0)
 
 			self.train_loss_summ = tf.summary.scalar("Loss", self.loss)
 
 		with tf.name_scope("Optimizers") as scope:
 			update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
   			with tf.control_dependencies(update_ops):
-				self.solver = tf.train.AdamOptimizer(learning_rate=1e-04).minimize(self.loss)
+				self.solver = tf.train.AdamOptimizer(learning_rate=5e-04).minimize(self.loss)
 
 		self.merged_summ = tf.summary.merge_all()
 		config = tf.ConfigProto()
@@ -150,7 +150,8 @@ class DeepDive(object):
 		print "Training Images: ", train_imgs.shape[0]
 		print "Validation Images: ", val_imgs.shape[0]
 		print "Learning_rate: ", learning_rate, "Batch_size", batch_size, "Epochs", epoch_size
-		input("Training will start above configuration. Press Enter to Start....")
+		raw_input("Training will start above configuration. Press Enter to Start....")
+		
 		with tf.name_scope("Training") as scope:
 			for epoch in range(epoch_size):
 				for itr in xrange(0, train_imgs.shape[0]-batch_size, batch_size):
@@ -158,7 +159,7 @@ class DeepDive(object):
 					out_images = train_imgs[itr:itr+batch_size][0]
 
 					sess_in = [self.solver ,self.loss, self.merged_summ]
-					sess_out = self.sess.run(sess_in, {self.x:in_images,self.y:in_images,self.train_phase:True})
+					sess_out = self.sess.run(sess_in, {self.x:in_images, self.y:out_images, self.train_phase:True})
 					self.train_writer.add_summary(sess_out[2])
 
 					if itr%5==0:
@@ -168,7 +169,7 @@ class DeepDive(object):
 					in_images = val_imgs[itr:itr+batch_size][1]
 					out_images = val_imgs[itr:itr+batch_size][0]
 
-					val_loss, summ = self.sess.run([self.loss, self.merged_summ], {self.x: in_images, self.y: in_images,self.train_phase:False})
+					val_loss, summ = self.sess.run([self.loss, self.merged_summ], {self.x: in_images, self.y: out_images,self.train_phase:False})
 					self.val_writer.add_summary(summ)
 
 					print "Epoch: ", epoch, "Iteration: ", itr, "Validation Loss: ", val_loss
